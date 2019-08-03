@@ -1,6 +1,8 @@
 import { Timer, TimerCallback } from './Timer/Timer';
+import { CanvasMouseEvent } from './Event/CanvasMouseEvent';
+import { CanvasKeyBoardEvent } from './Event/CanvasKeyBoardEvent';
 
-export class Applicatoin {
+export class Applicatoin implements EventListenerObject {
     protected _start: boolean = false;
     protected _requestId: number = -1;
     protected _lastTime! : number;
@@ -9,6 +11,8 @@ export class Applicatoin {
     public timers: Timer[] = [];
     private _timeId: number = -1;
     private _fgs: number = 0;
+    public isSuportMouseMouseMove: boolean;
+    protected _isMouseDown: boolean;
 
     private get fps() {
         return this._fgs;
@@ -16,6 +20,88 @@ export class Applicatoin {
 
     protected constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
+
+        this.canvas.addEventListener('mousedown', this, false);
+        this.canvas.addEventListener('mouseup', this, false);
+        this.canvas.addEventListener('mousemove', this, false);
+
+        window.addEventListener('keydown', this, false);
+        window.addEventListener('keypress', this, false);
+        window.addEventListener('keyup', this, false);
+
+        this._isMouseDown = false;
+        this.isSuportMouseMouseMove = false;
+    }
+
+    public handleEvent(evt: Event): void {
+        switch(event.type) {
+            case 'mousedown':
+                this._isMouseDown = true;
+                this.dispatchMouseDown(this._toCanvasMouseEvent(evt));
+                break;
+            case 'mouseup':
+                this._isMouseDown = false;
+                this.dispatchMouseUp(this._toCanvasMouseEvent(evt));
+                break;
+            case 'mousemove':
+                if(this.isSuportMouseMouseMove) {
+                    this.dispatchMouseMove(this._toCanvasMouseEvent(evt));
+                }
+                if(this._isMouseDown) {
+                    this.dispatchMouseDrag(this._toCanvasMouseEvent(evt));
+                }
+                break;
+            case 'keypress':
+                this.dispatchKeyPress(this._toCanvasKeyBoardEvent(evt));
+                break;
+            case 'keydown':
+                this.dispatchKeyDown(this._toCanvasKeyBoardEvent(evt));
+                break;
+            case 'keyup':
+                this.dispatchKeyUp(this._toCanvasKeyBoardEvent(evt));
+                break;
+        }
+    }
+
+    protected dispatchMouseDown(evt: CanvasMouseEvent): void {}
+
+    protected dispatchMouseUp(evt: CanvasMouseEvent): void{}
+
+    protected dispatchMouseMove(evt: CanvasMouseEvent): void{}
+
+    protected dispatchMouseDrag(evt: CanvasMouseEvent): void{}
+
+    protected dispatchKeyPress(evt: CanvasKeyBoardEvent): void{}
+
+    protected dispatchKeyDown(evt: CanvasKeyBoardEvent): void{}
+
+    protected dispatchKeyUp(evt: CanvasKeyBoardEvent): void{}
+
+    private _viewportToCanvasCoordinate(evt: MouseEvent): Object {
+        if(this.canvas) {
+            let rect: ClientRect = this.canvas.getBoundingClientRect();
+            
+            let x: number = evt.clientX - rect.left;
+            let y: number = evt.clientY - rect.top;
+
+            return {x, y};
+        }
+        throw new Error('canvas is null');
+    }
+
+    private _toCanvasMouseEvent(evt: Event): CanvasMouseEvent {
+        let event: MouseEvent = evt as MouseEvent;
+        let mousePosition: Object = this._viewportToCanvasCoordinate(event);
+        let canvasMouseEvent: CanvasMouseEvent = new CanvasMouseEvent(mousePosition,
+            event.button, event.altKey, event.ctrlKey, event.shiftKey);
+        return canvasMouseEvent;
+    }
+
+    private _toCanvasKeyBoardEvent(evt: Event): CanvasKeyBoardEvent {
+        let event: KeyboardEvent = evt as KeyboardEvent;
+        let canvasKeyboardEvent: CanvasKeyBoardEvent = new CanvasKeyBoardEvent(event.key, event.keyCode,
+            event.repeat, event.altKey, event.ctrlKey, event.shiftKey);
+        return canvasKeyboardEvent;
     }
 
     public removeTimer(id: number) : boolean {

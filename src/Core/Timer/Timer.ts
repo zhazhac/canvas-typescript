@@ -1,6 +1,6 @@
 export type TimerCallback = (id: number, data: any) => void;
 
-export class TImer {
+export class Timer {
     public id: number = -1;
     public enabled: boolean = false;
     public callback: TimerCallback;

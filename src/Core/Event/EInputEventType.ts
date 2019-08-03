@@ -1,4 +1,4 @@
-export enum EInputEventType {
+enum EInputEventType {
     MOUSEEVENT,
     MOUSEDOWN,
     MOUSEUP,
@@ -9,3 +9,5 @@ export enum EInputEventType {
     KEYDOWN,
     KEYPRESS
  };
+
+ export default EInputEventType;

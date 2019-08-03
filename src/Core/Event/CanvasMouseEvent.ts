@@ -7,4 +7,12 @@ export class CanvasMouseEvent extends CanvasInputEvent {
     public canvasPosition;
 
     public localPosition;
+
+    public constructor(canvasPos, button: number,
+        altKey: boolean = false, ctrlKey: boolean = false,
+        shiftKey: boolean = false) {
+            super(altKey, ctrlKey, shiftKey);
+            this.canvasPosition = canvasPos;
+            this.botton = this.botton;
+    }
 };

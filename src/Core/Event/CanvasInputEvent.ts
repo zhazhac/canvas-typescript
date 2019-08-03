@@ -1,4 +1,4 @@
-import {EInputEventType} from './EInputEventType';
+import EInputEventType from './EInputEventType';
 
 export class CanvasInputEvent {
     public altKey: boolean;
